@@ -74,8 +74,7 @@
 
 - (void)keyboardWillShow:(NSNotification*)notification {
     _keyboardRect = [[[notification userInfo] objectForKey:_UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    _keyboardVisible = YES;
-    
+
     UIView *firstResponder = [self findFirstResponderBeneathView:self];
     if ( !firstResponder ) {
         // No child view is the first responder - nothing to do here
@@ -86,18 +85,17 @@
         _priorInset = self.contentInset;
         _priorInsetSaved = YES;
     }
-    
-    // Shrink view's inset by the keyboard's height, and scroll to show the text field/view being edited
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationCurve:[[[notification userInfo] objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
-    [UIView setAnimationDuration:[[[notification userInfo] objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue]];
 
+    // Shrink view's inset by the keyboard's height, and scroll to show the text field/view being edited
+    float animDur = [[[notification userInfo] objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
     self.contentInset = [self contentInsetForKeyboard];
-    [self setContentOffset:CGPointMake(self.contentOffset.x, 
-                                       [self idealOffsetForView:firstResponder withSpace:[self keyboardRect].origin.y - self.bounds.origin.y]) 
-                  animated:YES];
-    
-    [UIView commitAnimations];
+    CGPoint calcPoint = CGPointMake(self.contentOffset.x, [self idealOffsetForView:firstResponder withSpace:[self keyboardRect].origin.y - self.bounds.origin.y]);
+
+    [UIView animateWithDuration:animDur animations:^{
+        self.contentOffset = calcPoint;
+    } completion:^(BOOL finished) {
+        _keyboardVisible = YES;
+    }];
 }
 
 - (void)keyboardWillHide:(NSNotification*)notification {
