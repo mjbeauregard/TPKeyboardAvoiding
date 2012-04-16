@@ -13,5 +13,6 @@
     CGSize          _originalContentSize;
 }
 
++ (void)ensureNotHiddenByKeyboard:(UIView *)view;
 - (void)adjustOffsetToIdealIfNeeded;
 @end

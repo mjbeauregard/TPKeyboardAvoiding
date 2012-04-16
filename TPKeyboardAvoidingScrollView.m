@@ -156,16 +156,33 @@
     return offset;
 }
 
++ (TPKeyboardAvoidingScrollView *)findParentScrollView:(UIView *)view {
+    UIView *v = view;
+    while (v) {
+        if ([v isKindOfClass:[TPKeyboardAvoidingScrollView class]]) {
+            return (TPKeyboardAvoidingScrollView *)v;
+        } else {
+            v = v.superview;
+        }
+    }
+    return nil;
+}
+
++ (void)ensureNotHiddenByKeyboard:(UIView *)view {
+    TPKeyboardAvoidingScrollView *scrollView = [self findParentScrollView:view];
+    [scrollView adjustOffsetToIdealIfNeeded];
+}
+
 -(void)adjustOffsetToIdealIfNeeded {
     
     // Only do this if the keyboard is already visible
     if ( !_keyboardVisible ) return;
     
     CGFloat visibleSpace = self.bounds.size.height - self.contentInset.top - self.contentInset.bottom;
-    
-    CGPoint idealOffset = CGPointMake(0, [self idealOffsetForView:[self findFirstResponderBeneathView:self] withSpace:visibleSpace]); 
-    
-    [self setContentOffset:idealOffset animated:YES];                
+
+    CGPoint idealOffset = CGPointMake(0, [self idealOffsetForView:[self findFirstResponderBeneathView:self] withSpace:visibleSpace]);
+
+    [self setContentOffset:idealOffset animated:YES];
 }
 
 - (CGRect)keyboardRect {
